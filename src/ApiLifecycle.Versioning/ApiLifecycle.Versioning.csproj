@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../ApiLifecycle.AspNetCore/ApiLifecycle.AspNetCore.csproj" />
+    <PackageReference Include="Asp.Versioning.Http" Version="10.2.3" />
+  </ItemGroup>
+</Project>

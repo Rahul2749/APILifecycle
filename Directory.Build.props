@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <Version>0.0.1-preview.1</Version>
+    <Authors>Rahul Nagrikar</Authors>
+    <Copyright>Copyright (c) 2026 Rahul Nagrikar</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Rahul2749/APILifecycle</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Rahul2749/APILifecycle</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageReleaseNotes>Initial .NET 10 preview: lifecycle registry, standards-compliant headers, retirement enforcement, brownouts, bounded usage metrics, Asp.Versioning adapter, and testing helpers. Public APIs may change before 1.0.</PackageReleaseNotes>
+    <Description>Lifecycle management for versioned ASP.NET Core APIs: deprecation and sunset headers, retirement enforcement, brownouts, and usage metrics.</Description>
+    <PackageTags>api-versioning;deprecation;sunset;api-lifecycle;opentelemetry;aspnetcore</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

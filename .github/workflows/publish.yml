@@ -1,0 +1,89 @@
+name: Publish prerelease
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: publish-prerelease
+  cancel-in-progress: false
+jobs:
+  validate:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Check release version
+        shell: pwsh
+        run: |
+          [xml]$props = Get-Content Directory.Build.props -Raw
+          if ($props.Project.PropertyGroup.Version -ne '0.0.1-preview.1') { throw 'Unexpected release version' }
+      - run: dotnet restore ApiLifecycle.slnx
+      - run: dotnet build ApiLifecycle.slnx -c Release --no-restore -p:ContinuousIntegrationBuild=true
+      - run: dotnet test --solution ApiLifecycle.slnx -c Release --no-build
+      - run: dotnet pack ApiLifecycle.slnx -c Release --no-build -p:ContinuousIntegrationBuild=true -o artifacts/packages
+      - name: Check package metadata and size
+        shell: pwsh
+        run: ./scripts/Verify-Packages.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-packages-${{ matrix.os }}
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+  publish:
+    if: github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-packages-ubuntu-latest
+          path: artifacts/packages
+      - name: Bind the release version to this source commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=v0.0.1-preview.1
+          existing=$(git ls-remote --tags origin "refs/tags/$tag" | cut -f1)
+          if [ -n "$existing" ]; then
+            test "$existing" = "$GITHUB_SHA" || { echo 'Release tag belongs to a different commit; bump the package version.'; exit 1; }
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null
+          fi
+      - name: Get short-lived NuGet publishing credential
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: rahulnagrikar
+      - name: Publish NuGet packages
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          for package in Abstractions AspNetCore Versioning Testing; do
+            dotnet nuget push "artifacts/packages/ApiLifecycle.$package.0.0.1-preview.1.nupkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          done
+      - name: Create GitHub prerelease and upload packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=v0.0.1-preview.1
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --verify-tag --title "ApiLifecycle 0.0.1-preview.1" --prerelease --notes-file CHANGELOG.md
+          fi
+          gh release upload "$tag" artifacts/packages/*.nupkg --clobber

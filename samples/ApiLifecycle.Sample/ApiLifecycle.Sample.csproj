@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+  </PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../src/ApiLifecycle.Versioning/ApiLifecycle.Versioning.csproj" /></ItemGroup>
+</Project>

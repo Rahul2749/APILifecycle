@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <InternalsVisibleTo Include="ApiLifecycle.Tests" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../ApiLifecycle.Abstractions/ApiLifecycle.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
