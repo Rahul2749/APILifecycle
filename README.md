@@ -1,6 +1,6 @@
 # ApiLifecycle
 
-A .NET 10 NuGet package family for lifecycle governance on top of ASP.NET Core versioning. The `1.0.0` release is prepared for validation; see [GitHub releases](https://github.com/Rahul2749/APILifecycle/releases) for published versions.
+A .NET 10 NuGet package family for lifecycle governance on top of ASP.NET Core versioning. Version `1.0.0` provides lifecycle policies, deprecation/sunset headers, retirement and brownout enforcement, and bounded usage metrics. See [GitHub releases](https://github.com/Rahul2749/APILifecycle/releases) for release artifacts and history.
 
 Install the core package, or use the optional adapter when your application uses Asp.Versioning:
 

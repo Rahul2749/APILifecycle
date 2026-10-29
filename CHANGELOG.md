@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.0.0 — release candidate prepared 2026-10-30
+## 1.0.0 — 2026-10-30
 
-First stable release scope: lifecycle registry, standard headers, retirement/brownout enforcement, bounded BCL metrics, Asp.Versioning integration, and testing helpers on .NET 10. Publication is a separate release action.
+First stable release: lifecycle registry, standard headers, retirement/brownout enforcement, bounded BCL metrics, Asp.Versioning integration, and testing helpers on .NET 10.
 
 - Preserve ASP.NET Core 405 and Asp.Versioning 400 responses in strict mode, including invalid, unspecified, unsupported, and ambiguous versions.
 - Match parsed API versions rather than their string formatting, so `1` and `1.0` resolve consistently. Invalid keys and semantic duplicates fail startup in permissive mode too.

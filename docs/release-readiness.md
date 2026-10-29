@@ -1,6 +1,6 @@
 # 1.0.0 release preparation
 
-Prepared 30 October 2026. Status: release candidate; not published as stable. The published baseline remains `0.0.1-preview.1`. Local results are recorded below; hosted results are available in the preparation pull request and [GitHub Actions](https://github.com/Rahul2749/APILifecycle/actions).
+Prepared 30 October 2026. Local and hosted release validation passed, and [preparation PR #1](https://github.com/Rahul2749/APILifecycle/pull/1) was merged after publication was authorized. The compatibility baseline used for these checks is `0.0.1-preview.1`. Local results are recorded below; hosted results are available in [GitHub Actions](https://github.com/Rahul2749/APILifecycle/actions). See the [1.0.0 release](https://github.com/Rahul2749/APILifecycle/releases/tag/v1.0.0) for published artifacts.
 
 ## Supported release scope
 
@@ -30,4 +30,4 @@ Usage-report storage/export and top-N ranking, recurring brownouts, per-API-name
 
 ## Release action
 
-Review the preparation pull request and its CI artifacts, merge the candidate into main, then dispatch `Release` with `publish=true` when publication is authorized. The preparation run uses `publish=false`; no stable tag or package is created by testing. See [releasing.md](releasing.md) for the complete process.
+The preparation run used `publish=false` and created no stable tag or package. The authorized release runs `Release` from main with `publish=true`, repeating all validation before publishing. See [releasing.md](releasing.md) for the complete process.
