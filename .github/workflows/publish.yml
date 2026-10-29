@@ -1,10 +1,15 @@
-name: Publish prerelease
+name: Release
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish to NuGet and create a GitHub release (false runs validation only)
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
-  group: publish-prerelease
+  group: release
   cancel-in-progress: false
 jobs:
   validate:
@@ -12,6 +17,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,30 +26,40 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - name: Check release version
+      - name: Read release version
+        id: version
         shell: pwsh
         run: |
           [xml]$props = Get-Content Directory.Build.props -Raw
-          if ($props.Project.PropertyGroup.Version -ne '0.0.1-preview.1') { throw 'Unexpected release version' }
-      - run: dotnet restore ApiLifecycle.slnx
+          $version = [string]$props.Project.PropertyGroup.Version
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw 'Invalid package version' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - run: dotnet restore ApiLifecycle.slnx -p:NuGetAuditMode=all
       - run: dotnet build ApiLifecycle.slnx -c Release --no-restore -p:ContinuousIntegrationBuild=true
       - run: dotnet test --solution ApiLifecycle.slnx -c Release --no-build
       - run: dotnet pack ApiLifecycle.slnx -c Release --no-build -p:ContinuousIntegrationBuild=true -o artifacts/packages
-      - name: Check package metadata and size
+      - name: Check package metadata, symbols, SourceLink, and size
         shell: pwsh
         run: ./scripts/Verify-Packages.ps1
+      - name: Test packed packages with real HTTP and a fresh consumer
+        shell: pwsh
+        run: ./scripts/Test-Packages.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: release-packages-${{ matrix.os }}
-          path: artifacts/packages/*.nupkg
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/packages/*.snupkg
           if-no-files-found: error
   publish:
-    if: github.ref == 'refs/heads/main'
+    if: inputs.publish && github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
+    env:
+      VERSION: ${{ needs.validate.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -57,7 +74,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=v0.0.1-preview.1
+          tag="v$VERSION"
           existing=$(git ls-remote --tags origin "refs/tags/$tag" | cut -f1)
           if [ -n "$existing" ]; then
             test "$existing" = "$GITHUB_SHA" || { echo 'Release tag belongs to a different commit; bump the package version.'; exit 1; }
@@ -69,21 +86,23 @@ jobs:
         id: login
         with:
           user: rahulnagrikar
-      - name: Publish NuGet packages
+      - name: Publish NuGet packages and symbols
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
           set -euo pipefail
           for package in Abstractions AspNetCore Versioning Testing; do
-            dotnet nuget push "artifacts/packages/ApiLifecycle.$package.0.0.1-preview.1.nupkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "artifacts/packages/ApiLifecycle.$package.$VERSION.nupkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
           done
-      - name: Create GitHub prerelease and upload packages
+      - name: Create GitHub release and upload packages
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=v0.0.1-preview.1
+          tag="v$VERSION"
+          options=()
+          if [[ "$VERSION" == *-* ]]; then options+=(--prerelease); fi
           if ! gh release view "$tag" >/dev/null 2>&1; then
-            gh release create "$tag" --verify-tag --title "ApiLifecycle 0.0.1-preview.1" --prerelease --notes-file CHANGELOG.md
+            gh release create "$tag" --verify-tag --title "ApiLifecycle $VERSION" "${options[@]}" --notes-file CHANGELOG.md
           fi
-          gh release upload "$tag" artifacts/packages/*.nupkg --clobber
+          gh release upload "$tag" artifacts/packages/*.nupkg artifacts/packages/*.snupkg --clobber

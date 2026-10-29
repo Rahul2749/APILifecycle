@@ -11,7 +11,7 @@ namespace ApiLifecycle;
 public sealed class ApiLifecycleMetrics : IDisposable
 {
     public const string MeterName = "ApiLifecycle";
-    private readonly Meter meter = new(MeterName, "0.0.1");
+    private readonly Meter meter = new(MeterName, typeof(ApiLifecycleMetrics).Assembly.GetName().Version?.ToString(3));
     private readonly Counter<long> requests;
     private readonly Histogram<double> duration;
     private readonly ApiLifecycleOptions options;

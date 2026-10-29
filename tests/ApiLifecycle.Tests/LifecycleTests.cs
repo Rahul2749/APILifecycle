@@ -19,7 +19,7 @@ using Xunit;
 
 namespace ApiLifecycle.Tests;
 
-public sealed class LifecycleTests
+public sealed partial class LifecycleTests
 {
     private static readonly DateTimeOffset Deprecation = DateTimeOffset.FromUnixTimeSeconds(1688169599);
     private static readonly DateTimeOffset Sunset = new(2024, 6, 30, 23, 59, 59, TimeSpan.Zero);

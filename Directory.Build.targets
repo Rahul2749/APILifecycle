@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup Condition="'$(IsPackable)' != 'false'">
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>0.0.1-preview.1</PackageValidationBaselineVersion>
+  </PropertyGroup>
+</Project>

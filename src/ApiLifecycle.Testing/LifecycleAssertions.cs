@@ -17,7 +17,7 @@ public static class LifecycleAssertions
     {
         foreach (var endpoint in source.Endpoints.OfType<RouteEndpoint>())
         {
-            if (endpoint.Metadata.GetMetadata<SkipApiLifecycleMetadata>() is not null || resolver.IsVersionNeutral(endpoint)) continue;
+            if (endpoint.Metadata.GetMetadata<SkipApiLifecycleMetadata>() is not null || resolver.IsVersionNeutral(endpoint) || resolver.IsErrorEndpoint(endpoint)) continue;
             var versions = resolver.GetDeclaredVersions(endpoint);
             if (versions.Count == 0 || versions.Any(version => !registry.TryGetPolicy(version, out _)))
                 throw new InvalidOperationException($"Endpoint '{endpoint.DisplayName}' has missing lifecycle policies.");
