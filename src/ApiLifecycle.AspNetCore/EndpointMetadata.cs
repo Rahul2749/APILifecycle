@@ -30,6 +30,8 @@ public interface IApiLifecycleVersionResolver
     string? Resolve(HttpContext context);
     IReadOnlyCollection<string> GetDeclaredVersions(Endpoint endpoint);
     bool IsVersionNeutral(Endpoint endpoint);
+    /// <summary>Identifies synthetic versioning error endpoints that must retain their framework response.</summary>
+    bool IsErrorEndpoint(Endpoint endpoint) => false;
 }
 
 internal sealed class MetadataVersionResolver : IApiLifecycleVersionResolver

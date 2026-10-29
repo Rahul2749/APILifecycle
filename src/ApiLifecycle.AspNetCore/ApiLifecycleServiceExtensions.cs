@@ -39,13 +39,15 @@ internal sealed class LifecycleStartupFilter : IStartupFilter
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
     {
         var registry = app.ApplicationServices.GetRequiredService<IApiLifecycleRegistry>();
+        // Construct the adapter in permissive mode too, so invalid or ambiguous
+        // version keys cannot silently bypass enforcement on the first request.
+        var resolver = app.ApplicationServices.GetRequiredService<IApiLifecycleVersionResolver>();
         next(app);
         if (!app.ApplicationServices.GetRequiredService<IOptions<ApiLifecycleOptions>>().Value.StrictMode) return;
-        var resolver = app.ApplicationServices.GetRequiredService<IApiLifecycleVersionResolver>();
         var sources = app.ApplicationServices.GetRequiredService<EndpointDataSource>();
         foreach (var endpoint in sources.Endpoints.OfType<RouteEndpoint>())
         {
-            if (endpoint.Metadata.GetMetadata<SkipApiLifecycleMetadata>() is not null || resolver.IsVersionNeutral(endpoint)) continue;
+            if (endpoint.Metadata.GetMetadata<SkipApiLifecycleMetadata>() is not null || resolver.IsVersionNeutral(endpoint) || resolver.IsErrorEndpoint(endpoint)) continue;
             var versions = resolver.GetDeclaredVersions(endpoint);
             if (versions.Count == 0 || versions.Any(version => !registry.TryGetPolicy(version, out _)))
                 throw new InvalidOperationException($"Endpoint '{endpoint.DisplayName}' must declare registered lifecycle versions or explicitly skip ApiLifecycle.");

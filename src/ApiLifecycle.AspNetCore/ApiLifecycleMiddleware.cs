@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 
 namespace ApiLifecycle;
@@ -13,7 +14,10 @@ internal sealed class ApiLifecycleMiddleware(RequestDelegate next)
         TimeProvider time, ApiLifecycleMetrics metrics)
     {
         var endpoint = context.GetEndpoint();
-        if (endpoint is null || endpoint.Metadata.GetMetadata<SkipApiLifecycleMetadata>() is not null || resolver.IsVersionNeutral(endpoint))
+        // Leave framework-generated 400/405 responses to their owning component,
+        // before asking the resolver to read potentially ambiguous version input.
+        if (endpoint is not RouteEndpoint || endpoint.Metadata.GetMetadata<SkipApiLifecycleMetadata>() is not null ||
+            resolver.IsVersionNeutral(endpoint) || resolver.IsErrorEndpoint(endpoint))
         {
             await next(context);
             return;

@@ -1,5 +1,7 @@
 # Implementation plan review
 
+Historical review of the original draft. For the current 1.0 scope, fixes and verification results, see [release readiness](release-readiness.md).
+
 Reviewed on 22 October 2026 against the supplied draft. The draft is a product proposal, not authorization to publish packages, reserve names, contact developers, or operate external accounts.
 
 ## Findings

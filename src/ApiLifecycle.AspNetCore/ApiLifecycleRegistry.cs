@@ -15,6 +15,10 @@ internal sealed class ApiLifecycleRegistry : IApiLifecycleRegistry
     {
         var errors = new List<string>();
         var source = options.Value;
+        if (source.Versions is null)
+            throw new OptionsValidationException(nameof(ApiLifecycleOptions), typeof(ApiLifecycleOptions), ["Versions must not be null."]);
+        if (source.Versions.Any(policy => policy is null))
+            throw new OptionsValidationException(nameof(ApiLifecycleOptions), typeof(ApiLifecycleOptions), ["Versions must not contain null policies."]);
         var versions = source.Versions;
         var names = new HashSet<string>(StringComparer.Ordinal);
         if (source.MaxTrackedClients is < 0 or > 10000)
@@ -38,6 +42,11 @@ internal sealed class ApiLifecycleRegistry : IApiLifecycleRegistry
                 Error("SuccessorVersion must refer to a different registered version.");
             ValidateUrl(policy.SuccessorUrl, "SuccessorUrl", Error);
             ValidateUrl(policy.PolicyUrl, "PolicyUrl", Error);
+            if (policy.Brownouts is null || policy.Brownouts.Any(window => window is null))
+            {
+                Error("Brownouts must be a non-null collection without null entries.");
+                continue;
+            }
             var windows = policy.Brownouts.OrderBy(window => window.Start).ToArray();
             for (var i = 0; i < windows.Length; i++)
             {

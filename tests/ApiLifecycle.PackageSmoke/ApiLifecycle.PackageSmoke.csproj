@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <LifecyclePackageVersion Condition="'$(LifecyclePackageVersion)' == ''">1.0.0</LifecyclePackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ApiLifecycle.Versioning" Version="$(LifecyclePackageVersion)" />
+    <PackageReference Include="ApiLifecycle.Testing" Version="$(LifecyclePackageVersion)" />
+    <PackageReference Include="Asp.Versioning.Mvc" Version="10.2.1" />
+  </ItemGroup>
+</Project>

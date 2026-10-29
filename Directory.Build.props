@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisLevel>latest</AnalysisLevel>
-    <Version>0.0.1-preview.1</Version>
+    <Version>1.0.0</Version>
     <Authors>Rahul Nagrikar</Authors>
     <Copyright>Copyright (c) 2026 Rahul Nagrikar</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -13,7 +13,10 @@
     <RepositoryUrl>https://github.com/Rahul2749/APILifecycle</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageReleaseNotes>Initial .NET 10 preview: lifecycle registry, standards-compliant headers, retirement enforcement, brownouts, bounded usage metrics, Asp.Versioning adapter, and testing helpers. Public APIs may change before 1.0.</PackageReleaseNotes>
+    <PackageReleaseNotes>First stable .NET 10 release: validated lifecycle policies, RFC deprecation/sunset headers, retirement and brownout enforcement, bounded BCL usage metrics, Asp.Versioning adapter, and testing helpers. Includes MVC/version-reader coverage, preserved 400/405 responses, and semantic version-key matching. See CHANGELOG.md.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Description>Lifecycle management for versioned ASP.NET Core APIs: deprecation and sunset headers, retirement enforcement, brownouts, and usage metrics.</Description>
     <PackageTags>api-versioning;deprecation;sunset;api-lifecycle;opentelemetry;aspnetcore</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

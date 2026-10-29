@@ -13,14 +13,19 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: dotnet restore ApiLifecycle.slnx
+      - run: dotnet restore ApiLifecycle.slnx -p:NuGetAuditMode=all
       - run: dotnet build ApiLifecycle.slnx -c Release --no-restore
       - run: dotnet test --solution ApiLifecycle.slnx -c Release --no-build
       - run: dotnet pack ApiLifecycle.slnx -c Release --no-build -o artifacts/packages
       - name: Verify package metadata and 150 KiB budget
         shell: pwsh
         run: ./scripts/Verify-Packages.ps1
+      - name: Test NuGet package consumer over real HTTP
+        shell: pwsh
+        run: ./scripts/Test-Packages.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.os }}
-          path: artifacts/packages/*.nupkg
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/packages/*.snupkg
